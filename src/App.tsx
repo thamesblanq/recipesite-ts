@@ -5,6 +5,7 @@ import RecipeDetail from "./components/RecipeDetail";
 import Content from "./components/Content";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
+import Contact from "./components/Contact";
 
 function App() {
   
@@ -24,6 +25,7 @@ function App() {
 
         <Route path="login" element={<Login />} />
         <Route path="signup" element={<Signup />} />
+        <Route path="contact" element={<Contact />} />
 
 
       

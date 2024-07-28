@@ -3,7 +3,7 @@ import footerBg from "../images/footerpic.png";
 
 const Footer = () => {
   return (
-    <footer className="p-6 mt-12">
+    <footer className="px-6 my-4">
       <div className="flex flex-col items-center gap-10">
 
         {/* Subscription Section */}
@@ -15,7 +15,7 @@ const Footer = () => {
         </div>
 
         {/* Navigation Section */}
-        <div className="w-full p-6 rounded-lg flex flex-col md:flex-row items-center md:justify-between space-y-4 border-b-2 border-slate-800">
+        <div className="w-full p-6 rounded-lg flex flex-col md:flex-row items-center md:justify-between space-y-4">
           <h1 className="text-2xl text-black font-lobster">
             <Link to="/">Foodieland<span className="text-[#FF7426]">.</span></Link>
           </h1>
