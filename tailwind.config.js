@@ -22,6 +22,9 @@ module.exports = {
         'inter': 'Inter',
         'lobster': 'Lobster',
       },
+      backgroundImage: {
+        'footer-pic': "url('./src/images/footerpic.png')",
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
