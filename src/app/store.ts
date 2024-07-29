@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 import { nutritionApi } from '@/features/services/nutritionApi';
 import { authApi } from '@/features/auth/authApi';
 import { youtubeApi } from '@/features/services/youtubeApi';
+import { mixkitApi } from '@/features/services/micKitApi';
 
 
 const store = configureStore({
@@ -16,9 +17,10 @@ const store = configureStore({
     [nutritionApi.reducerPath]: nutritionApi.reducer,
     [authApi.reducerPath]: authApi.reducer,
     [youtubeApi.reducerPath]: youtubeApi.reducer,
+    [mixkitApi.reducerPath]: mixkitApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(mealDbApi.middleware, nutritionApi.middleware, authApi.middleware, youtubeApi.middleware),
+    getDefaultMiddleware().concat(mealDbApi.middleware, nutritionApi.middleware, authApi.middleware, youtubeApi.middleware, mixkitApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

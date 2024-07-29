@@ -1,36 +1,28 @@
-// src/components/CookingVideos.tsx
-import React from 'react';
-import { useSearchVideosQuery } from '@/features/services/youtubeApi';
-import { YouTubeVideo } from '@/types';
+import { useSearchVideosQuery } from '@/features/services/micKitApi';
+import { MixkitVideo } from '@/types';
 
-const CookingVideos: React.FC = () => {
-  // Use the hook to fetch data
-  const { data, error, isLoading } = useSearchVideosQuery();
+const CookingVideos = () => {
+  const { data, error, isLoading } = useSearchVideosQuery('cooking');
 
-  // Handle loading state
   if (isLoading) return <p>Loading...</p>;
-
-  // Handle error state
   if (error) return <p>Failed to load videos</p>;
 
-  // Ensure data is not null and define the videos array
-  const videos: YouTubeVideo[] = data?.items || [];
+  const videos = data?.results || []; // Adjust if the API response structure is different
 
-  // Render the component
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-      {videos.map((video: YouTubeVideo) => (
-        <div key={video.id.videoId} className="relative pb-9/16">
-          <iframe
+      {videos.map((video: MixkitVideo) => (
+        <div key={video.id} className="relative pb-9/16">
+          <video
             className="absolute top-0 left-0 w-full h-full"
-            src={`https://www.youtube.com/embed/${video.id.videoId}`}
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            title={video.snippet.title}
-          ></iframe>
+            src={video.url} // Ensure the URL field is correct
+            controls
+            title={video.title}
+          >
+            Your browser does not support the video tag.
+          </video>
           <div className="absolute bottom-0 bg-black bg-opacity-50 text-white p-2 w-full text-center">
-            {video.snippet.title}
+            {video.title}
           </div>
         </div>
       ))}

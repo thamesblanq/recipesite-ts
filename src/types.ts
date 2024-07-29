@@ -48,4 +48,15 @@ export interface YouTubeVideo {
 export interface YouTubeResponse {
     items: YouTubeVideo[];
 }
+
+export interface MixkitVideo {
+  id: string;
+  title: string;
+  url: string;
+  thumbnail: string; // Adjust based on actual fields
+}
+
+export interface MixkitResponse {
+  results: MixkitVideo[];
+}
   
