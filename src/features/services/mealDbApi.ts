@@ -66,6 +66,7 @@ export const mealDbApi = createApi({
             meal.strIngredient19,
             meal.strIngredient20,
           ].filter(Boolean),
+          description: meal.strInstructions, // Ensure this field exists
           instructions: meal.strInstructions,
           imageUrl: meal.strMealThumb,
           category: meal.strCategory,

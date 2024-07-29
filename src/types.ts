@@ -22,7 +22,7 @@ export interface Recipe {
   id: string;
   title: string;
   ingredients: string[];
-  description: string; // Fixed typo here
+  description: string; // Missing in the current implementation
   instructions: string;
   imageUrl: string;
   category: string;
