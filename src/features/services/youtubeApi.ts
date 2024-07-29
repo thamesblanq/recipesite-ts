@@ -2,7 +2,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { YouTubeResponse } from '@/types';
 
-const API_KEY = 'AIzaSyDdn8IEiKV1R32ddkF7K7TZ_KY6KmF_6FM'; // Replace with your API key
+const API_KEY = ''; // Replace with your API key
 const SEARCH_QUERY = 'cooking';
 
 export const youtubeApi = createApi({

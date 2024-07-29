@@ -22,9 +22,23 @@ export interface Recipe {
   id: string;
   title: string;
   ingredients: string[];
+  description: string; // Fixed typo here
   instructions: string;
   imageUrl: string;
   category: string;
+  area?: string;
+  youtube?: string;
+  time?: string;
+}
+
+export interface AppwriteDocument {
+  $id: string;
+  title?: string;
+  description?: string;
+  ingredients?: string[];
+  instructions?: string;
+  imageUrl?: string;
+  category?: string;
   area?: string;
   youtube?: string;
   time?: string;
@@ -59,4 +73,13 @@ export interface MixkitVideo {
 export interface MixkitResponse {
   results: MixkitVideo[];
 }
+
+// src/types/index.ts
+export interface CustomErrorForAppwrite {
+  status: string;
+  error: string;
+}
+
+
+
   
