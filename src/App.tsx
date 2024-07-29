@@ -6,31 +6,34 @@ import Content from "./components/Content";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Contact from "./components/Contact";
+import CategoryPage from "./components/CategoriesPage";
+import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
   
 
   return (
+    <>
+      <ScrollToTop />
+      <Routes>
+        <Route path="/" element={<Layout />}>
+
+          <Route index element={<Content />} />
+
+          <Route path="login" element={<Login />} />
+          <Route path="signup" element={<Signup />} />
+          <Route path="contact" element={<Contact />} />
+          <Route path="category/:category" element={<CategoryPage />} />
+          <Route path="recipe" element={<RecipeList />} />
+          <Route path="recipe/:id" element={<RecipeDetail />} />
 
 
-    <Routes>
-      <Route path="/" element={<Layout />}>
-
-        <Route index element={<Content />} />
-
-        <Route path="recipe" >
-            <Route index element={<RecipeList />} />
-            <Route path=":id" element={<RecipeDetail />} />
+        
         </Route>
-
-        <Route path="login" element={<Login />} />
-        <Route path="signup" element={<Signup />} />
-        <Route path="contact" element={<Contact />} />
+      </Routes>
+    </>
 
 
-      
-      </Route>
-    </Routes>
 
   )
 }

@@ -1,17 +1,6 @@
-// src/services/mealDbApi.ts
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-export interface Recipe {
-  id: string;
-  title: string;
-  ingredients: string[];
-  instructions: string;
-  imageUrl: string;
-  category: string,
-  area: string,
-  youtube: string,
-  time: string,
-}
+import { Recipe } from '@/types';
 
 interface MealDBResponse {
   meals: Array<{
@@ -21,7 +10,7 @@ interface MealDBResponse {
     strMealThumb: string;
     strCategory: string;
     strArea: string,
-    strYoutube: string
+    strYoutube: string,
     strIngredient1: string;
     strIngredient2: string;
     strIngredient3: string;
