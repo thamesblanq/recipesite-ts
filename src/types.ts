@@ -30,4 +30,22 @@ export interface Recipe {
   time?: string;
 }
 
+
+export interface YouTubeVideo {
+    id: {
+      videoId: string;
+    };
+    snippet: {
+      title: string;
+      thumbnails: {
+        high: {
+          url: string;
+        };
+      };
+    };
+  }
+  
+export interface YouTubeResponse {
+    items: YouTubeVideo[];
+}
   

@@ -6,6 +6,7 @@ import { mealDbApi } from '../features/services/mealDbApi';
 import { useDispatch } from 'react-redux';
 import { nutritionApi } from '@/features/services/nutritionApi';
 import { authApi } from '@/features/auth/authApi';
+import { youtubeApi } from '@/features/services/youtubeApi';
 
 
 const store = configureStore({
@@ -14,9 +15,10 @@ const store = configureStore({
     [mealDbApi.reducerPath]: mealDbApi.reducer,
     [nutritionApi.reducerPath]: nutritionApi.reducer,
     [authApi.reducerPath]: authApi.reducer,
+    [youtubeApi.reducerPath]: youtubeApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(mealDbApi.middleware, nutritionApi.middleware, authApi.middleware),
+    getDefaultMiddleware().concat(mealDbApi.middleware, nutritionApi.middleware, authApi.middleware, youtubeApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
