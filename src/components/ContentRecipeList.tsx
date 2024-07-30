@@ -1,31 +1,31 @@
 import RecipeCard from "./RecipeCard";
 import { Recipe } from "@/types";
-//import { useFetchRecipesQuery  } from "@/features/services/appwriteApi";
+import { useFetchRecipesQuery  } from "@/features/services/appwriteApi";
 import { useFetchRecipesQuery as useMealDbRecipesQuery } from "@/features/services/mealDbApi";
 
 const ContentRecipeList = () => {
   const { data: mealDbRecipes, error: mealDbError, isLoading: isMealDbLoading } = useMealDbRecipesQuery();
-  //const { data: appwriteRecipes, error: appwriteError, isLoading: isAppwriteLoading } = useFetchRecipesQuery(); // Fetch from Appwrite API
+  const { data: appwriteRecipes, error: appwriteError, isLoading: isAppwriteLoading } = useFetchRecipesQuery();
 
   // Determine if recipes are available from Appwrite
-  //const hasAppwriteRecipes = Array.isArray(appwriteRecipes) && appwriteRecipes.length > 0 && appwriteError === undefined;
+  const hasAppwriteRecipes = Array.isArray(appwriteRecipes) && appwriteRecipes.length > 0 && appwriteError === undefined;
 
   // Combine recipes if Appwrite has recipes, otherwise use only MealDB recipes
-/*   const combinedRecipes2: Recipe[] = hasAppwriteRecipes 
+  const combinedRecipes: Recipe[] = hasAppwriteRecipes 
     ? [...(mealDbRecipes || []), ...appwriteRecipes] 
     : mealDbRecipes || [];
- */
-  const combinedRecipes: Recipe[] = mealDbRecipes || []
+
+  //const combinedRecipes: Recipe[] = mealDbRecipes || []
   // Get the first 12 recipes
   const first12Recipes = combinedRecipes.slice(0, 12);
 
   // Handle loading and error states
-  if (isMealDbLoading) return <p>Loading...</p>;
+  if (isMealDbLoading || isAppwriteLoading) return <p>Loading...</p>;
 
-  if ( mealDbError) {
+  if ( mealDbError || appwriteError ) {
     let errorMessage: string | undefined = "An unknown error occurred";
     
-/*     if (appwriteError) {
+    if (appwriteError) {
       console.log('Appwrite Error:', appwriteError); // Log Appwrite error
       if ('status' in appwriteError) {
         // Handle FetchBaseQueryError
@@ -34,7 +34,7 @@ const ContentRecipeList = () => {
         // Handle SerializedError
         errorMessage = `Appwrite Error: ${appwriteError.message}`;
       }
-    } */ 
+    } 
     if (mealDbError) {
       console.log('MealDB Error:', mealDbError); // Log MealDB error
       if ('status' in mealDbError) {

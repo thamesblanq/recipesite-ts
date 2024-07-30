@@ -1,22 +1,30 @@
 // src/components/RecipeDetail.tsx
 import { useParams, useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { RootState } from '../app/store';
+import { useFetchRecipesQuery as useMealDbRecipesQuery } from '@/features/services/mealDbApi';
+import { useFetchRecipesQuery } from '@/features/services/appwriteApi';
 import { Clock3, Utensils, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 import NutritionalData from './NutritionalData';
-
+import { Recipe } from '@/types';
 
 const RecipeDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const recipe = useSelector((state: RootState) =>
-    state.recipes.recipes.find((recipe) => recipe.id === id)
-  );
+  const { data: mealDbRecipes, error: mealDbError, isLoading: isMealDbLoading } = useMealDbRecipesQuery();
+  const { data: appwriteRecipes, error: appwriteError, isLoading: isAppwriteLoading } = useFetchRecipesQuery();
+
+  const hasAppwriteRecipes = Array.isArray(appwriteRecipes) && appwriteRecipes.length > 0 && appwriteError === undefined;
+
+  const combinedRecipes: Recipe[] = hasAppwriteRecipes 
+    ? [...(mealDbRecipes || []), ...appwriteRecipes] 
+    : mealDbRecipes || [];
+
+  const recipe = combinedRecipes.find((item) => item.id === id);
 
   const navigate = useNavigate();
   const date = `${new Date().getDate()} / ${new Date().getMonth() + 1} / ${new Date().getFullYear()}`;
 
   const [checkedIngredients, setCheckedIngredients] = useState<string[]>([]);
+  
   const getYouTubeEmbedUrl = (url: string) => {
     const videoId = url.split('v=')[1];
     return `https://www.youtube.com/embed/${videoId}`;
@@ -29,6 +37,35 @@ const RecipeDetail = () => {
         : [...prev, ingredient]
     );
   };
+
+  if (isMealDbLoading && isAppwriteLoading) return <div className="flex justify-center items-center h-screen">Loading...</div>;
+
+  if (appwriteError || mealDbError) {
+    let errorMessage: string | undefined = "An unknown error occurred";
+    
+    if (appwriteError) {
+      console.log('Appwrite Error:', appwriteError); // Log Appwrite error
+      if ('status' in appwriteError) {
+        // Handle FetchBaseQueryError
+        errorMessage = `Appwrite Error ${appwriteError.status}: ${appwriteError.data}`;
+      } else if ('message' in appwriteError) {
+        // Handle SerializedError
+        errorMessage = `Appwrite Error: ${appwriteError.message}`;
+      }
+    } 
+    if (mealDbError) {
+      console.log('MealDB Error:', mealDbError); // Log MealDB error
+      if ('status' in mealDbError) {
+        // Handle FetchBaseQueryError
+        errorMessage = `MealDB Error ${mealDbError.status}: ${mealDbError.data}`;
+      } else if ('message' in mealDbError) {
+        // Handle SerializedError
+        errorMessage = `MealDB Error: ${mealDbError.message}`;
+      }
+    }
+
+    return <div className="flex justify-center items-center h-screen">{errorMessage}</div>;
+  }
 
   const content = !recipe ? (
     <div className="flex justify-center items-center h-screen font-inter">Recipe not found.</div>

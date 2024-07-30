@@ -1,32 +1,57 @@
 import React, { useMemo } from 'react';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/app/store';
 import { Link } from 'react-router-dom';
-import { useFetchRecipesQuery } from '@/features/services/mealDbApi';
+import { useFetchRecipesQuery as useMealDbRecipesQuery } from '@/features/services/mealDbApi';
+import { useFetchRecipesQuery } from '@/features/services/appwriteApi';
 
 const CategoryButtons: React.FC = () => {
-  const { data: mealDbRecipes, error, isLoading } = useFetchRecipesQuery();
+  const { data: mealDbRecipes, error: mealDbError, isLoading: isMealDbLoading } = useMealDbRecipesQuery();
+  const { data: appwriteRecipes, error: appwriteError, isLoading: isAppwriteLoading } = useFetchRecipesQuery();
 
   const mealDbCategories = useMemo(() => {
     return mealDbRecipes ? mealDbRecipes.map(recipe => recipe.category) : [];
   }, [mealDbRecipes]);
 
-  const appwriteCategories = useSelector((state: RootState) => {
-    return state.recipes.recipes.map(recipe => recipe.category);
-  });
+  const appwriteCategories = useMemo(() => {
+    if (Array.isArray(appwriteRecipes) && appwriteRecipes.length > 0 && !appwriteError) {
+      return appwriteRecipes.map(recipe => recipe.category);
+    }
+    return [];
+  }, [appwriteRecipes, appwriteError]);
 
   const combinedCategories = useMemo(() => {
     return Array.from(new Set([...mealDbCategories, ...appwriteCategories]));
   }, [mealDbCategories, appwriteCategories]);
 
-/*   useEffect(() => {
-    console.log("MealDB Categories:", mealDbCategories);
-    console.log("Appwrite Categories:", appwriteCategories);
-    console.log("Combined Categories:", combinedCategories);
-  }, [mealDbCategories, appwriteCategories, combinedCategories]); */
+  if (isMealDbLoading || isAppwriteLoading) return <p className='text-white'>Loading...</p>;
 
-  if (isLoading) return <p className='text-white'>Loading categories...</p>;
-  if (error) return <p className='text-white'>Error loading categories</p>;
+  if (mealDbError || appwriteError) {
+    let errorMessage: string | undefined = "An unknown error occurred";
+
+    if (appwriteError) {
+      console.log('Appwrite Error:', appwriteError); // Log Appwrite error
+      if ('status' in appwriteError) {
+        // Handle FetchBaseQueryError
+        errorMessage = `Appwrite Error ${appwriteError.status}: ${appwriteError.data}`;
+      } else if ('message' in appwriteError) {
+        // Handle SerializedError
+        errorMessage = `Appwrite Error: ${appwriteError.message}`;
+      }
+    }
+
+    if (mealDbError) {
+      console.log('MealDB Error:', mealDbError); // Log MealDB error
+      if ('status' in mealDbError) {
+        // Handle FetchBaseQueryError
+        errorMessage = `MealDB Error ${mealDbError.status}: ${mealDbError.data}`;
+      } else if ('message' in mealDbError) {
+        // Handle SerializedError
+        errorMessage = `MealDB Error: ${mealDbError.message}`;
+      }
+    }
+
+    return <p className='text-white'>Error fetching recipes: {errorMessage}</p>;
+  }
+
 
   if (combinedCategories.length === 0) {
     return <p className='text-white'>Category is empty</p>;
