@@ -1,17 +1,24 @@
-import { Link } from "react-router-dom"
-import { X } from "lucide-react"
-  
-
-
+import { Link } from "react-router-dom";
+import { X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Dropdown = ({ setShow }: { setShow: React.Dispatch<React.SetStateAction<boolean>> }) => {
+  const user = localStorage.getItem('user');
+  const userInfo = user ? JSON.parse(user) : null;
+  const navigate = useNavigate();
 
-    const content = (
-        <>
-<div className="fixed inset-0 bg-white flex flex-col items-start p-4 z-50 w-full">
-      <button 
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    setShow(false);
+    navigate('/'); // Redirect to home or login page
+  };
+
+  return (
+    <div className="fixed inset-0 bg-white flex flex-col items-start p-4 z-50 w-full">
+      <button
         className="self-end mb-4 text-black"
         onClick={() => setShow(false)}
+        aria-label="Close menu"
       >
         <X className="w-8 h-8" />
       </button>
@@ -52,30 +59,52 @@ const Dropdown = ({ setShow }: { setShow: React.Dispatch<React.SetStateAction<bo
             Contact
           </Link>
         </li>
-        <li className="border-b-2 border-black w-full">
-          <Link
-            to="/login"
-            className="block px-4 py-2 text-black w-full"
-            onClick={() => setShow(false)}
-          >
-            Login
-          </Link>
-        </li>
-        <li className="border-b-2 border-black w-full">
-          <Link
-            to="/signup"
-            className="block px-4 py-2 text-black w-full"
-            onClick={() => setShow(false)}
-          >
-            Sign Up
-          </Link>
-        </li>
+        {userInfo ? (
+          <>
+            <li className="border-b-2 border-black w-full">
+              <button
+                className="block px-4 py-2 text-black w-full"
+                onClick={handleLogout}
+                aria-label="Logout"
+              >
+                Logout
+              </button>
+            </li>
+            <li className="border-b-2 border-black w-full">
+              <Link
+                to={`/user/${userInfo.id}`}
+                className="block px-4 py-2 text-black w-full"
+                onClick={() => setShow(false)}
+              >
+                Profile
+              </Link>
+            </li>
+          </>
+        ) : (
+          <>
+            <li className="border-b-2 border-black w-full">
+              <Link
+                to="/login"
+                className="block px-4 py-2 text-black w-full"
+                onClick={() => setShow(false)}
+              >
+                Login
+              </Link>
+            </li>
+            <li className="border-b-2 border-black w-full">
+              <Link
+                to="/signup"
+                className="block px-4 py-2 text-black w-full"
+                onClick={() => setShow(false)}
+              >
+                Sign Up
+              </Link>
+            </li>
+          </>
+        )}
       </ul>
     </div>
-        </>
-    )
+  );
+};
 
-  return content
-}
-
-export default Dropdown
+export default Dropdown;

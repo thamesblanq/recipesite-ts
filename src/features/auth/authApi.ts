@@ -13,6 +13,7 @@ export const authApi = createApi({
           await account.createEmailPasswordSession(email, password);
           const user: User = await account.get();
           localStorage.setItem('user', JSON.stringify(user));
+          
           return { data: user };
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';

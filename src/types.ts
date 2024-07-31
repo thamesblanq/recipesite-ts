@@ -5,12 +5,12 @@ export interface UserPreferences {
 }
   
 export interface User {
-    $id: string;
-    $createdAt: string;
-    name: string;
-    email: string;
-    emailVerification: boolean;
-    prefs: UserPreferences;
+  id: string;
+  email: string;
+  name?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  favoriteRecipeIds?: string[]; // Array of recipe IDs the user has marked as favorites
 }
   
 export interface CustomError {
@@ -20,6 +20,7 @@ export interface CustomError {
 
 export interface Recipe {
   id: string;
+  userId?: string
   title: string;
   ingredients: string[];
   description: string; // Missing in the current implementation
@@ -33,6 +34,8 @@ export interface Recipe {
 
 export interface AppwriteDocument {
   $id: string;
+  userId?: string
+  email?: string;
   title?: string;
   description?: string;
   ingredients?: string[];
@@ -80,6 +83,17 @@ export interface CustomErrorForAppwrite {
   error: string;
 }
 
+export interface UserFavorite {
+  $id?: string
+  userId: string;
+  recipeId: string;
+}
+
+export interface AppwriteUser extends AppwriteDocument {
+  email?: string;
+  name?: string;
+  // Add other fields as necessary
+}
 
 
   

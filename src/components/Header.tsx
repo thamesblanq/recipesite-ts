@@ -1,12 +1,19 @@
 import { AlignLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Dropdown from "./Dropdown";
-import { Button } from "@/components/ui/button"
-
+import { Button } from "@/components/ui/button";
 
 const Header = () => {
   const [show, setShow] = useState<boolean>(false);
+  const user = localStorage.getItem('user');
+  const userInfo = user ? JSON.parse(user) : null;
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    navigate('/'); // Redirect to home or login page
+  };
 
   return (
     <header className="bg-white w-full h-20 flex items-center fixed top-0 border-b-2 border-black/50 z-50">
@@ -21,12 +28,21 @@ const Header = () => {
           <Link to="/contact" className="font-inter text-black font-bold">Contact</Link>
         </nav>
         <div className="hidden lg:flex items-center space-x-4">
-          <Button asChild>
-            <Link to="/login">Login</Link>
-          </Button>
-          <Button asChild>
-            <Link to="/signup">Sign Up</Link>
-          </Button>
+          {userInfo ? (
+            <>
+              <span className="font-inter text-black font-bold">{userInfo.email}</span>
+              <Button onClick={handleLogout} className="bg-red-500 text-white">Logout</Button>
+            </>
+          ) : (
+            <>
+              <Button asChild>
+                <Link to="/login">Login</Link>
+              </Button>
+              <Button asChild>
+                <Link to="/signup">Sign Up</Link>
+              </Button>
+            </>
+          )}
         </div>
         <AlignLeft
           className="text-2xl lg:hidden cursor-pointer hover:scale-110 transition duration-300 text-black"
