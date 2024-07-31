@@ -1,18 +1,48 @@
 import { AlignLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Dropdown from "./Dropdown";
 import { Button } from "@/components/ui/button";
+import { useLogoutMutation } from "@/features/auth/authApi";
+import { User } from "@/types";
 
 const Header = () => {
   const [show, setShow] = useState<boolean>(false);
-  const user = localStorage.getItem('user');
-  const userInfo = user ? JSON.parse(user) : null;
+  const [userInfo, setUserInfo] = useState<User | null>(() => {
+    const user = localStorage.getItem('session');
+    return user ? JSON.parse(user) : null;
+  });
+  console.log(userInfo?.$id)
   const navigate = useNavigate();
+  const [logout] = useLogoutMutation();
 
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    navigate('/'); // Redirect to home or login page
+  const updateUserInfo = useCallback(() => {
+    const user = localStorage.getItem('session');
+    setUserInfo(user ? JSON.parse(user) : null);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('storage', updateUserInfo);
+    return () => {
+      window.removeEventListener('storage', updateUserInfo);
+    };
+  }, [updateUserInfo]);
+
+  const handleLogout = async () => {
+    try {
+      await logout().unwrap();
+      console.log('Logout successful');
+      localStorage.removeItem('session');
+      console.log('localStorage cleared');
+      setUserInfo(null);
+      navigate('/'); // Redirect to home or login page
+    } catch (error) {
+      console.error("Logout failed:", error);
+      localStorage.removeItem('session'); // Clear localStorage even if logout fails
+      console.log('localStorage cleared on error');
+      setUserInfo(null);
+      navigate('/');
+    }
   };
 
   return (
@@ -32,6 +62,15 @@ const Header = () => {
             <>
               <span className="font-inter text-black font-bold">{userInfo.email}</span>
               <Button onClick={handleLogout} className="bg-red-500 text-white">Logout</Button>
+              <Button className="border-b-2 border-black w-full">
+                <Link
+                  to={`/user/${userInfo.$id}`}
+                  className="block px-4 py-2 text-white w-full"
+                  onClick={() => setShow(false)}
+                >
+                  Profile
+                </Link>
+              </Button>
             </>
           ) : (
             <>

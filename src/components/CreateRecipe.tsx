@@ -38,7 +38,8 @@ const CreateRecipe: React.FC = () => {
                 category,
                 area,
                 youtube,
-                time: formatDate(new Date()),
+                date: formatDate(new Date()),
+                time,
             }).unwrap();
             navigate('/'); // Redirect to home or other relevant page
         } catch (error) {
@@ -47,7 +48,7 @@ const CreateRecipe: React.FC = () => {
     };
 
     return (
-        <div className="container mx-auto p-4">
+        <div className="container mx-auto p-4 mt-24">
             <h1 className="text-3xl font-bold mb-4">Create Recipe</h1>
             <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Form fields for recipe details */}
@@ -59,7 +60,7 @@ const CreateRecipe: React.FC = () => {
                 <input type="text" placeholder="Category" className="p-2 border rounded w-full" value={category} onChange={(e) => setCategory(e.target.value)} />
                 <input type="text" placeholder="Area" className="p-2 border rounded w-full" value={area} onChange={(e) => setArea(e.target.value)} />
                 <input type="text" placeholder="YouTube Link" className="p-2 border rounded w-full" value={youtube} onChange={(e) => setYoutube(e.target.value)} />
-                <input type="text" placeholder="Cooking Time" className="p-2 border rounded w-full" value={time} onChange={(e) => setTime(e.target.value)} />
+                <input type="text" placeholder="Cooking Time" className="p-2 border rounded w-full" value={`${time} mins`} onChange={(e) => setTime(e.target.value)} />
                 <button type="submit" className="bg-blue-500 text-white p-2 rounded">Create Recipe</button>
             </form>
         </div>

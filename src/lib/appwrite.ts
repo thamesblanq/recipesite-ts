@@ -1,5 +1,5 @@
 // src/lib/appwrite.ts
-import { Client, Databases, Account } from 'appwrite';
+import { Client, Databases, Account, ID } from 'appwrite';
 
 const client = new Client()
   .setEndpoint('https://cloud.appwrite.io/v1') // Appwrite endpoint
@@ -8,4 +8,4 @@ const client = new Client()
 const databases = new Databases(client);
 const account = new Account(client);
 
-export { client, databases, account };
+export { client, databases, account, ID };

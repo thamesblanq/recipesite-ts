@@ -4,38 +4,67 @@ export interface UserPreferences {
     // Define the properties of UserPreferences if any
 }
   
+
+
+// types.ts
+
+// types.ts
 export interface User {
-  id: string;
-  email: string;
+  $createdAt?: string;
+  $id?: string;
+  $updatedAt?: string;
+  accessedAt?: string;
+  email?: string;
+  emailVerification?: boolean;
+  labels?: string[];
+  mfa?: boolean;
   name?: string;
-  createdAt?: string;
-  updatedAt?: string;
-  favoriteRecipeIds?: string[]; // Array of recipe IDs the user has marked as favorites
+  passwordUpdate?: string;
+  phone?: string;
+  phoneVerification?: boolean;
+  prefs?: Record<string, unknown>;
+  registration?: string;
+  status?: boolean;
+  targets?: Array<{
+    $id: string;
+    $createdAt: string;
+    $updatedAt: string;
+    identifier: string;
+    name: string;
+    providerId: string | null;
+    providerType: string;
+    userId: string;
+  }>;
 }
+
+
   
 export interface CustomError {
     status: 'CUSTOM_ERROR';
-    error: any;
+    error: Error;
 }
 
 export interface Recipe {
   id: string;
   userId?: string
+  date?: string
   title: string;
+  description: string;
   ingredients: string[];
-  description: string; // Missing in the current implementation
   instructions: string;
   imageUrl: string;
   category: string;
-  area?: string;
-  youtube?: string;
-  time?: string;
+  area?: string; // Optional, as it might not be in every document
+  youtube?: string; // Optional
+  time?: string; // Optional
 }
 
 export interface AppwriteDocument {
   $id: string;
   userId?: string
-  email?: string;
+  date?: string
+  $createdAt: string;
+  $updatedAt: string;
   title?: string;
   description?: string;
   ingredients?: string[];
@@ -46,6 +75,7 @@ export interface AppwriteDocument {
   youtube?: string;
   time?: string;
 }
+
 
 
 export interface YouTubeVideo {

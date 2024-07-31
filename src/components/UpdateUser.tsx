@@ -1,63 +1,113 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { useFetchUserQuery, useUpdateUserMutation } from '@/features/services/appwriteApi';
-
+import React, { useState } from 'react';
+import { useUpdateEmailMutation, useUpdatePasswordMutation } from '@/features/auth/authApi';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { useNavigate } from 'react-router-dom';
 
 const UpdateUser: React.FC = () => {
-    const { userId } = useParams<{ userId: string }>();
-    const { data: user, error: userError } = useFetchUserQuery(userId!);
-    const [updateUser] = useUpdateUserMutation();
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
+    const [newEmail, setNewEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [updateEmail, { isLoading: isUpdatingEmail, error: emailError }] = useUpdateEmailMutation();
+    const [updatePassword, { isLoading: isUpdatingPassword, error: passwordError }] = useUpdatePasswordMutation();
+    const navigate = useNavigate();
 
-    useEffect(() => {
-        if (user) {
-            setName(user.name || '');
-            setEmail(user.email);
+    const handleUpdateEmail = async () => {
+        if (!newEmail || !password) {
+            alert('Email and password are required');
+            return;
         }
-    }, [user]);
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
         try {
-            await updateUser({
-                userId: userId!,
-                userData: { name, email },
-            }).unwrap();
-            // Handle successful update (e.g., redirect)
-        } catch (error) {
-            console.error('Failed to update user:', error);
+            await updateEmail({ newEmail: newEmail, password }).unwrap();
+            alert('Email updated successfully');
+            navigate('/');
+        } catch (err) {
+            console.error('Failed to update email:', err);
+            alert('Error updating email');
         }
     };
 
-    if (!userId) {
-        return <div className="text-red-500">User ID is required</div>;
-    }
+    const handleUpdatePassword = async () => {
+        if (!password || !newPassword) {
+            alert('Current password and new password are required');
+            return;
+        }
+        try {
+            await updatePassword({ newPassword, oldPassword: password }).unwrap();
+            alert('Password updated successfully');
+            navigate('/');
+        } catch (err) {
+            console.error('Failed to update password:', err);
+            alert('Error updating password');
+        }
+    };
 
-    if (userError) {
-        return <div className="text-red-500">Error loading user data</div>;
-    }
+    const getErrorMessage = (error: FetchBaseQueryError | { message?: string }) => {
+        if ('status' in error && 'data' in error) {
+            return error.data as string;
+        } else if ('message' in error) {
+            return error.message;
+        } else {
+            return 'An unknown error occurred';
+        }
+    };
 
     return (
-        <div className="container mx-auto p-4">
-            <h1 className="text-3xl font-bold mb-4">Update Account</h1>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <input
-                    type="text"
-                    placeholder="Name"
-                    className="p-2 border rounded w-full"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                />
-                <input
-                    type="email"
-                    placeholder="Email"
-                    className="p-2 border rounded w-full"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-                <button type="submit" className="bg-blue-500 text-white p-2 rounded">Update Account</button>
-            </form>
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+            <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
+                <h1 className="text-2xl font-semibold mb-4">Update Account</h1>
+
+                <div className="mb-6">
+                    <h2 className="text-xl font-medium mb-2">Update Email</h2>
+                    <input
+                        type="email"
+                        value={newEmail}
+                        onChange={(e) => setNewEmail(e.target.value)}
+                        placeholder="New Email"
+                        className="w-full p-2 border border-gray-300 rounded-md mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Current Password"
+                        className="w-full p-2 border border-gray-300 rounded-md mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                        onClick={handleUpdateEmail}
+                        disabled={isUpdatingEmail}
+                        className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition duration-300"
+                    >
+                        {isUpdatingEmail ? 'Updating Email...' : 'Update Email'}
+                    </button>
+                    {emailError && <p className="text-red-500 mt-2">{getErrorMessage(emailError)}</p>}
+                </div>
+
+                <div>
+                    <h2 className="text-xl font-medium mb-2">Update Password</h2>
+                    <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Current Password"
+                        className="w-full p-2 border border-gray-300 rounded-md mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <input
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="New Password"
+                        className="w-full p-2 border border-gray-300 rounded-md mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                        onClick={handleUpdatePassword}
+                        disabled={isUpdatingPassword}
+                        className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition duration-300"
+                    >
+                        {isUpdatingPassword ? 'Updating Password...' : 'Update Password'}
+                    </button>
+                    {passwordError && <p className="text-red-500 mt-2">{getErrorMessage(passwordError)}</p>}
+                </div>
+            </div>
         </div>
     );
 };

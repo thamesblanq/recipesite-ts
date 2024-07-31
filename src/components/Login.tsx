@@ -10,9 +10,8 @@ const Login = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Check if a session already exists
-        const cookie = localStorage.getItem('cookieFallback');
-        if (cookie) {
+        const user = localStorage.getItem('user');
+        if (user) {
             navigate('/');
         }
     }, [navigate]);
@@ -20,10 +19,8 @@ const Login = () => {
     const handleLogin = async () => {
         try {
             const result = await login({ email, password }).unwrap();
-            // Store session information in localStorage or a state management store
             localStorage.setItem('session', JSON.stringify(result));
-            console.log(result)
-            navigate('/');
+            window.location.reload(); // Refresh the page after successful login
         } catch (error) {
             console.error('Failed to login:', error);
         }
@@ -31,10 +28,8 @@ const Login = () => {
 
     const getErrorMessage = (error: FetchBaseQueryError | { message?: string }) => {
         if ('status' in error && 'data' in error) {
-            console.error('Failed to login:', error.data);
             return error.data as string;
         } else if ('message' in error) {
-            console.error('Failed to login:', error.message);
             return error.message;
         } else {
             return 'An unknown error occurred';

@@ -27,7 +27,7 @@ const DeleteRecipe: React.FC = () => {
     if (recipeError) return <div className="text-red-500">Error loading recipe</div>;
 
     return (
-        <div className="container mx-auto p-4">
+        <div className="container mx-auto p-4 mt-24">
             <h1 className="text-3xl font-bold mb-4">Delete Recipe</h1>
             {recipe ? (
                 <div>

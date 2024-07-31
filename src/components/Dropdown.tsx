@@ -1,16 +1,37 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useLogoutMutation } from "@/features/auth/authApi";
+import { User } from "@/types";
 
 const Dropdown = ({ setShow }: { setShow: React.Dispatch<React.SetStateAction<boolean>> }) => {
-  const user = localStorage.getItem('user');
-  const userInfo = user ? JSON.parse(user) : null;
+  const [userInfo, setUserInfo] = useState<User | null>(() => {
+    const user = localStorage.getItem('session');
+    return user ? JSON.parse(user) : null;
+  });
+  console.log(userInfo?.$id)
   const navigate = useNavigate();
+  const [logout] = useLogoutMutation();
 
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    setShow(false);
-    navigate('/'); // Redirect to home or login page
+  useEffect(() => {
+    const user = localStorage.getItem('session');
+    setUserInfo(user ? JSON.parse(user) : null);
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await logout().unwrap();
+      localStorage.removeItem('session');
+      setUserInfo(null);
+      setShow(false);
+      navigate('/'); // Redirect to home or login page
+    } catch (error) {
+      console.error("Logout failed:", error);
+      localStorage.removeItem('session'); // Clear localStorage even if logout fails
+      setUserInfo(null);
+      setShow(false);
+      navigate('/');
+    }
   };
 
   return (
@@ -23,6 +44,8 @@ const Dropdown = ({ setShow }: { setShow: React.Dispatch<React.SetStateAction<bo
         <X className="w-8 h-8" />
       </button>
       <ul className="flex flex-col gap-4 w-full">
+        {userInfo ? <span className="font-inter text-black font-bold">{userInfo.email}</span> : <span></span>}
+        
         <li className="border-b-2 border-black w-full">
           <Link
             to="/"
@@ -63,7 +86,7 @@ const Dropdown = ({ setShow }: { setShow: React.Dispatch<React.SetStateAction<bo
           <>
             <li className="border-b-2 border-black w-full">
               <button
-                className="block px-4 py-2 text-black w-full"
+                className="w-max block px-4 py-2 text-black"
                 onClick={handleLogout}
                 aria-label="Logout"
               >
@@ -72,7 +95,7 @@ const Dropdown = ({ setShow }: { setShow: React.Dispatch<React.SetStateAction<bo
             </li>
             <li className="border-b-2 border-black w-full">
               <Link
-                to={`/user/${userInfo.id}`}
+                to={`/user/${userInfo.$id}`}
                 className="block px-4 py-2 text-black w-full"
                 onClick={() => setShow(false)}
               >

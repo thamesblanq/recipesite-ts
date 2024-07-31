@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useRegisterMutation } from "@/features/auth/authApi";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { Link, useNavigate } from "react-router-dom";
-import { ID } from "appwrite";
+//import { ID } from "appwrite";
 
 const Signup = () => {
     const [email, setEmail] = useState('');
@@ -10,13 +10,15 @@ const Signup = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [register, { isLoading, isError, error }] = useRegisterMutation();
     const navigate = useNavigate();
-    const userId = ID.unique();
+    //const userId = ID.unique();
 
     useEffect(() => {
-        // Check if a session already exists
-        const cookie = localStorage.getItem('cookieFallback');
-        if (cookie) {
-            navigate('/');
+        // Check if a session already exist
+        const session = localStorage.getItem('user');
+        if (session) {
+                console.warn('Session already active');
+                navigate('/');
+                return;
         }
     }, [navigate]);
 
@@ -35,7 +37,7 @@ const Signup = () => {
                 return;
             }
 
-            const result = await register({ userId, email, password }).unwrap();
+            const result = await register({ email, password }).unwrap();
             // Store session information in localStorage or a state management store
             localStorage.setItem('session', JSON.stringify(result));
             navigate('/');

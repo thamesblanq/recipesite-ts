@@ -1,33 +1,25 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { databases } from '@/lib/appwrite';
-import { Recipe, CustomErrorForAppwrite, AppwriteDocument, User, AppwriteUser, UserFavorite } from '@/types';
+import { Recipe, CustomErrorForAppwrite, AppwriteDocument, UserFavorite } from '@/types';
 import { Query } from 'appwrite';
 
 const databaseId = '66a8015a00304cd2a18a';
 const collectionId = '66a801bd0027adf1756d';
-const usersCollectionId = '66a95c4b000e11ed1589'; // Replace with your actual Users Collection ID
 const userFavoritesCollectionId = '66a96db00024359778ac'; // Replace with your actual User Favorites Collection ID
 
 const mapDocumentToRecipe = (doc: AppwriteDocument): Recipe => {
     return {
         id: doc.$id,
+        userId: doc.userId || '', // Map userId from document
         title: doc.title || '',
         description: doc.description || '',
         ingredients: doc.ingredients || [],
         instructions: doc.instructions || '',
         imageUrl: doc.imageUrl || '',
         category: doc.category || '',
-        area: doc.area,
-        youtube: doc.youtube,
-        time: doc.time,
-    };
-};
-
-const mapDocumentToUser = (doc: AppwriteUser): User => {
-    return {
-        id: doc.$id,
-        email: doc.email || '',
-        name: doc.name || '',
+        area: doc.area || '', // Provide fallback for optional fields
+        youtube: doc.youtube || '',
+        time: doc.time || '',
     };
 };
 
@@ -37,6 +29,23 @@ const mapDocumentToUserFavorite = (doc: AppwriteDocument): UserFavorite => {
         recipeId: doc.$id || '', // Ensure fallback to empty string if recipeId is undefined
     };
 };
+
+const getUserIdFromLocalStorage = (): string | null => {
+    const user = localStorage.getItem('session');
+    if (user) {
+        try {
+            const parsedUser = JSON.parse(user);
+            console.log(parsedUser.$id)
+            return parsedUser.$id || null; // Adjust based on your user object structure
+        } catch (e) {
+            console.error('Error parsing user from localStorage:', e);
+            return null;
+        }
+    }
+    return null;
+};
+
+
 
 export const appwriteApi = createApi({
     reducerPath: 'appwriteApi',
@@ -59,7 +68,15 @@ export const appwriteApi = createApi({
         addRecipe: builder.mutation<Recipe, Recipe>({
             queryFn: async (recipe) => {
                 try {
-                    const response = await databases.createDocument(databaseId, collectionId, recipe.id, recipe);
+                    const userId = getUserIdFromLocalStorage();
+                    if (!userId) {
+                        return { error: { status: 'CUSTOM_ERROR', error: 'User ID not found' } };
+                    }
+                    
+                    // Add userId to recipe
+                    const recipeWithUserId = { ...recipe, userId };
+                    
+                    const response = await databases.createDocument(databaseId, collectionId, recipeWithUserId.id, recipeWithUserId);
                     return { data: mapDocumentToRecipe(response) };
                 } catch (error) {
                     return { error: { status: 'CUSTOM_ERROR', error: (error as CustomErrorForAppwrite).error } };
@@ -86,50 +103,6 @@ export const appwriteApi = createApi({
                 }
             },
         }),
-
-        // User endpoints
-        fetchUser: builder.query<User, string>({
-          queryFn: async (userId) => {
-              if (!userId) {
-                  return { error: { status: 'CUSTOM_ERROR', error: 'User ID is required' } };
-              }
-              try {
-                  const response = await databases.getDocument(databaseId, usersCollectionId, userId);
-                  const user = mapDocumentToUser(response as AppwriteUser);
-                  return { data: user };
-              } catch (error) {
-                  console.error('Error fetching user:', error);
-                  return { error: { status: 'CUSTOM_ERROR', error: (error as CustomErrorForAppwrite).error } };
-              }
-          },
-      }),
-      updateUser: builder.mutation<User, { userId: string; userData: Partial<User> }>({
-          queryFn: async ({ userId, userData }) => {
-              if (!userId || !userData) {
-                  return { error: { status: 'CUSTOM_ERROR', error: 'Invalid input' } };
-              }
-              try {
-                  const response = await databases.updateDocument(databaseId, usersCollectionId, userId, userData);
-                  return { data: mapDocumentToUser(response as AppwriteUser) };
-              } catch (error) {
-                  return { error: { status: 'CUSTOM_ERROR', error: (error as CustomErrorForAppwrite).error } };
-              }
-          },
-      }),
-      deleteUser: builder.mutation<string, string>({
-        queryFn: async (userId) => {
-            if (!userId) {
-                return { error: { status: 'CUSTOM_ERROR', error: 'User ID is required' } };
-            }
-            try {
-                await databases.deleteDocument(databaseId, usersCollectionId, userId);
-                return { data: userId };
-            } catch (error) {
-                return { error: { status: 'CUSTOM_ERROR', error: (error as CustomErrorForAppwrite).error } };
-            }
-        },
-    }),
-    
 
         // Favorite recipes endpoints
         fetchFavoriteRecipes: builder.query<Recipe[], string>({
@@ -200,7 +173,7 @@ export const appwriteApi = createApi({
                 }
                 try {
                     const response = await databases.listDocuments(databaseId, collectionId, [
-                        Query.equal('createdBy', userId) // Assuming 'createdBy' is the field for user ID
+                        Query.equal('userId', userId) // Use 'userId' field to filter recipes created by the user
                     ]);
                     const documents = response.documents as unknown as AppwriteDocument[];
                     const recipes = documents.map(mapDocumentToRecipe);
@@ -218,10 +191,7 @@ export const {
     useFetchRecipesQuery, 
     useAddRecipeMutation, 
     useRemoveRecipeMutation, 
-    useUpdateRecipeMutation,  // Export the new mutation hook
-    useFetchUserQuery, 
-    useUpdateUserMutation, 
-    useDeleteUserMutation,
+    useUpdateRecipeMutation,  
     useFetchFavoriteRecipesQuery,
     useAddFavoriteRecipeMutation,
     useRemoveFavoriteRecipeMutation,

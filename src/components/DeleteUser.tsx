@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useDeleteUserMutation } from '@/features/services/appwriteApi';
+import { useDeleteUserMutation } from '@/features/auth/authApi';
 
 const DeleteUser: React.FC = () => {
     const { userId } = useParams<{ userId: string }>();
@@ -14,7 +14,7 @@ const DeleteUser: React.FC = () => {
             return;
         }
         try {
-            await deleteUser(userId).unwrap();
+            await deleteUser().unwrap();
             if (session !== null) {
                 localStorage.removeItem(session);
             }
@@ -25,7 +25,7 @@ const DeleteUser: React.FC = () => {
     };
 
     return (
-        <div className="container mx-auto p-4">
+        <div className="container mx-auto p-4 mt-24">
             <h1 className="text-3xl font-bold mb-4">Delete Account</h1>
             <button onClick={handleDelete} className="bg-red-500 text-white p-2 rounded">Delete Account</button>
         </div>

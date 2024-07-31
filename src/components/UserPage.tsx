@@ -1,31 +1,67 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useFetchUserQuery, useFetchFavoriteRecipesQuery, useFetchUserCreatedRecipesQuery } from '@/features/services/appwriteApi';
+import { useFetchFavoriteRecipesQuery, useFetchUserCreatedRecipesQuery } from '@/features/services/appwriteApi';
+import { useFetchUserQuery } from '@/features/auth/authApi';
 import RecipeCard from '@/components/RecipeCard';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { SerializedError } from '@reduxjs/toolkit';
 
 const UserPage: React.FC = () => {
     const { userId } = useParams<{ userId: string }>();
 
-    const { data: user, error: userError, isLoading: userLoading } = useFetchUserQuery(userId || '');
+    // Fetch user data without parameters
+    const { data: user, error: userError, isLoading: userLoading } = useFetchUserQuery();
+
+    // Fetch favorite recipes
     const { data: favoriteRecipes, error: favoriteError, isLoading: favoriteLoading } = useFetchFavoriteRecipesQuery(userId || '');
+
+    // Fetch created recipes
     const { data: createdRecipes, error: createdError, isLoading: createdLoading } = useFetchUserCreatedRecipesQuery(userId || '');
 
+    // Loading states
     if (userLoading || favoriteLoading || createdLoading) {
         return <div className="text-gray-500">Loading...</div>;
     }
 
-    if (userError || favoriteError || createdError) {
-        return <div className="text-red-500">Error loading data</div>;
+    // Error handling
+    interface ErrorWithMessage {
+        message?: string;
+    }
+    
+    type AppError = FetchBaseQueryError | SerializedError | { status?: string; data?: ErrorWithMessage };
+    
+    const extractErrorMessage = (error: AppError): string => {
+        // Check if the error has a 'status' property
+        if ('status' in error && error.status) {
+            return `Error: ${error.status}`;
+        }
+        // Check if the error has a 'data' property and 'message' within 'data'
+        if ('data' in error && error.data) {
+            return `Error: ${error.data}`;
+        }
+        // Default message for unknown errors
+        return 'An unknown error occurred';
+    };
+
+    if (userError) {
+        return <div className="text-red-500">Error loading user data: {extractErrorMessage(userError)}</div>;
+    }
+    if (favoriteError) {
+        return <div className="text-red-500">Error loading favorite recipes: {extractErrorMessage(favoriteError)}</div>;
+    }
+    if (createdError) {
+        return <div className="text-red-500">Error loading created recipes: {extractErrorMessage(createdError)}</div>;
     }
 
+    // Display if userId is not available
     if (!userId) {
         return <div className="text-red-500">User ID is missing</div>;
     }
 
     return (
-        <div className="container mx-auto p-4">
+        <div className="container mx-auto p-4 mt-24">
             <header className="text-center mb-8">
-                <h1 className="text-3xl font-bold">{user?.name}'s Page</h1>
+                <h1 className="text-3xl font-bold">{user?.email}'s Page</h1>
                 <p className="text-lg text-gray-600">Email: {user?.email}</p>
             </header>
 
@@ -38,7 +74,7 @@ const UserPage: React.FC = () => {
             <section className="mb-8">
                 <h2 className="text-2xl font-semibold mb-4">Favorite Recipes</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    {favoriteRecipes && favoriteRecipes.length > 0 ? (
+                    {favoriteRecipes?.length ? (
                         favoriteRecipes.map(recipe => (
                             <RecipeCard key={recipe.id} recipe={recipe} />
                         ))
@@ -51,7 +87,7 @@ const UserPage: React.FC = () => {
             <section>
                 <h2 className="text-2xl font-semibold mb-4">Created Recipes</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    {createdRecipes && createdRecipes.length > 0 ? (
+                    {createdRecipes?.length ? (
                         createdRecipes.map(recipe => (
                             <div key={recipe.id}>
                                 <RecipeCard recipe={recipe} />

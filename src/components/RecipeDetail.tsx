@@ -21,7 +21,7 @@ const RecipeDetail = () => {
   const recipe = combinedRecipes.find((item) => item.id === id);
 
   const navigate = useNavigate();
-  const date = `${new Date().getDate()} / ${new Date().getMonth() + 1} / ${new Date().getFullYear()}`;
+  //const date = `${new Date().getDate()} / ${new Date().getMonth() + 1} / ${new Date().getFullYear()}`;
 
   const [checkedIngredients, setCheckedIngredients] = useState<string[]>([]);
   
@@ -78,8 +78,8 @@ const RecipeDetail = () => {
             <div className="flex flex-col items-center">
               <img src={recipe.imageUrl} alt={recipe.title} className="w-12 h-12 object-cover rounded-full border border-slate-950" />
               <div className="text-center mt-2">
-                <h2 className="text-xs font-bold">Arthur Cheng</h2>
-                <h2 className="text-xs">{date}</h2>
+                <h2 className="text-xs font-bold">arthur cheng</h2>
+                <h2 className="text-xs">{recipe.date}</h2>
               </div>
             </div>
             <div className="flex flex-col items-center">
