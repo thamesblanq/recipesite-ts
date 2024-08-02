@@ -13,15 +13,12 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Link } from 'react-router-dom';
 import { Recipe } from '@/types';
-//import SkeletonCard from './SkeletonCard';
-
-
 
 const RecipeList = () => {
   const { data: mealDbRecipes, error: mealDbError, isLoading: isMealDbLoading } = useMealDbRecipesQuery();
   const { data: appwriteRecipes, error: appwriteError, isLoading: isAppwriteLoading } = useFetchRecipesQuery();
 
-const hasAppwriteRecipes = Array.isArray(appwriteRecipes) && appwriteRecipes.length > 0 && appwriteError === undefined;
+  const hasAppwriteRecipes = Array.isArray(appwriteRecipes) && appwriteRecipes.length > 0 && appwriteError === undefined;
   
   // Combine recipes if Appwrite has recipes, otherwise use only MealDB recipes
   const combinedRecipes: Recipe[] = hasAppwriteRecipes 
@@ -45,6 +42,7 @@ const hasAppwriteRecipes = Array.isArray(appwriteRecipes) && appwriteRecipes.len
     } 
     if (mealDbError) {
       console.log('MealDB Error:', mealDbError); // Log MealDB error
+      console.error('MealDB Error:', mealDbError); // Log MealDB error
       if ('status' in mealDbError) {
         // Handle FetchBaseQueryError
         errorMessage = `MealDB Error ${mealDbError.status}: ${mealDbError.data}`;
@@ -57,35 +55,49 @@ const hasAppwriteRecipes = Array.isArray(appwriteRecipes) && appwriteRecipes.len
     return <div className="flex justify-center items-center h-screen">{errorMessage}</div>;
   }
 
+  const handleShareRecipe = (recipeId: string) => {
+    const recipeUrl = `${window.location.origin}/recipe/${recipeId}`;
+    navigator.clipboard.writeText(recipeUrl).then(() => {
+      alert('Recipe link copied to clipboard! You can now share it.');
+    }).catch((error) => {
+      console.error('Error copying text: ', error);
+    });
+  };
+
   const content = (
     <>
-    <div className="container mx-auto p-4 my-6">
-      <h2 className="text-3xl font-bold mb-4">Recipe List</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {combinedRecipes.map((recipe) => (
-          <Card key={recipe.id} className="shadow-lg">
-            <img src={recipe.imageUrl} alt={recipe.title} className="w-full h-48 object-cover" />
-            <CardHeader>
-              <CardTitle>{recipe.title}</CardTitle>
-              <CardDescription>{recipe.instructions.slice(0, 100)}...</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-between items-center">
-                <Badge>{recipe.area}</Badge>
-                <Badge>{recipe.time}</Badge>
+      <div className="container mx-auto p-4 my-6">
+        <h2 className="text-3xl font-bold mb-4">Recipe List</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {combinedRecipes.map((recipe) => (
+            <Card key={recipe.id} className="shadow-lg">
+              <img src={recipe.imageUrl} alt={recipe.title} className="w-full h-48 object-cover" />
+              <CardHeader>
+                <CardTitle>{recipe.title}</CardTitle>
+                <CardDescription>{recipe.instructions.slice(0, 100)}...</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex justify-between items-center">
+                  <Badge className='px-4 rounded-md'>{recipe.area}</Badge>
+                  <Badge className='px-4 rounded-md'>{recipe.time}</Badge>
+                </div>
+              </CardContent>
+              <div className='flex justify-between items-center'>
+                <CardFooter>
+                  <Link to={`/recipe/${recipe.id}`}>
+                    <Button variant="outline">View Recipe</Button>
+                  </Link>
+                </CardFooter>
+                <CardFooter>
+                  <Button variant="outline" onClick={() => handleShareRecipe(recipe.id)}>Share Recipe</Button>
+                </CardFooter>
               </div>
-            </CardContent>
-            <CardFooter>
-              <Link to={`/recipe/${recipe.id}`}>
-                <Button variant="outline">View Recipe</Button>
-              </Link>
-            </CardFooter>
-          </Card>
-        ))}
+            </Card>
+          ))}
+        </div>
       </div>
-    </div>
     </>
-  )
+  );
 
   return content;
 };

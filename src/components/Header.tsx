@@ -12,7 +12,7 @@ const Header = () => {
     const user = localStorage.getItem('session');
     return user ? JSON.parse(user) : null;
   });
-  console.log(userInfo?.$id)
+
   const navigate = useNavigate();
   const [logout] = useLogoutMutation();
 
@@ -45,6 +45,13 @@ const Header = () => {
     }
   };
 
+  const handleProfile = () => {
+    if (userInfo) {
+      navigate(`/user/${userInfo.$id}`);
+      //window.location.href = `/user/${userInfo.$id}`;
+    }
+  };
+
   return (
     <header className="bg-white w-full h-20 flex items-center fixed top-0 border-b-2 border-black/50 z-50">
       <div className="container mx-auto flex items-center justify-between px-4">
@@ -54,7 +61,7 @@ const Header = () => {
         <nav className="hidden lg:flex items-center space-x-8">
           <Link to="/" className="font-inter text-black font-bold">Home</Link>
           <Link to="/recipe" className="font-inter text-black font-bold">Recipe</Link>
-          <Link to="/blog" className="font-inter text-black font-bold">Blog</Link>
+          {/* <Link to="/blog" className="font-inter text-black font-bold">Blog</Link> */}
           <Link to="/contact" className="font-inter text-black font-bold">Contact</Link>
         </nav>
         <div className="hidden lg:flex items-center space-x-4">
@@ -62,14 +69,8 @@ const Header = () => {
             <>
               <span className="font-inter text-black font-bold">{userInfo.email}</span>
               <Button onClick={handleLogout} className="bg-red-500 text-white">Logout</Button>
-              <Button className="border-b-2 border-black w-full">
-                <Link
-                  to={`/user/${userInfo.$id}`}
-                  className="block px-4 py-2 text-white w-full"
-                  onClick={() => setShow(false)}
-                >
-                  Profile
-                </Link>
+              <Button className="bg-red-500 text-white" onClick={handleProfile}>
+                Profile
               </Button>
             </>
           ) : (

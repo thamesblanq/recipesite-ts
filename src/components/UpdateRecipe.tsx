@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useFetchRecipesQuery, useUpdateRecipeMutation } from '@/features/services/appwriteApi';
+import { useFetchRecipeByIdQuery, useUpdateRecipeMutation } from '@/features/services/appwriteApi';
 
 const UpdateRecipe: React.FC = () => {
-    const { recipeId } = useParams<{ recipeId?: string }>(); // recipeId can be undefined
+    const { id: recipeId } = useParams<{ id: string }>();
+    //console.log(`This is RecipeID: ${recipeId}`)
     const navigate = useNavigate();
     
-    // Fetch the recipe details based on recipeId
-    const { data: recipes, error: recipeError, isLoading: recipeLoading } = useFetchRecipesQuery();
-    const recipe = recipeId ? recipes?.find((item) => item.id === recipeId) : undefined
-    
-    // Mutation for updating the recipe
+    // Fetch the specific recipe details based on recipeId
+    const { data: recipe, error: recipeError, isLoading: recipeLoading } = useFetchRecipeByIdQuery(recipeId || '');
+    //console.log(recipe)
+
     const [updateRecipe] = useUpdateRecipeMutation();
     
     const [title, setTitle] = useState('');
@@ -31,11 +31,19 @@ const UpdateRecipe: React.FC = () => {
             setInstructions(recipe.instructions || '');
             setImageUrl(recipe.imageUrl || '');
             setCategory(recipe.category || '');
-            setArea(recipe.area || '');  // Default to empty string if undefined
-            setYoutube(recipe.youtube || '');  // Default to empty string if undefined
-            setTime(recipe.time || '');  // Default to empty string if undefined
+            setArea(recipe.area || '');
+            setYoutube(recipe.youtube || '');
+            setTime(recipe.time || '');
         }
     }, [recipe]);
+
+    const formatDate = (date: Date): string => {
+        return new Intl.DateTimeFormat('en-GB', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+        }).format(date);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -55,9 +63,11 @@ const UpdateRecipe: React.FC = () => {
                     category,
                     area,
                     youtube,
+                    date: formatDate(new Date()),
                     time,
                 },
             }).unwrap();
+            alert('Recipe updated')
             navigate(`/recipe/${recipeId}`); // Redirect to recipe detail page or elsewhere after update
         } catch (error) {
             console.error('Failed to update recipe:', error);
@@ -163,7 +173,6 @@ const UpdateRecipe: React.FC = () => {
                         value={time}
                         onChange={(e) => setTime(e.target.value)}
                         className="w-full p-2 border rounded"
-                        readOnly
                     />
                 </div>
                 <button type="submit" className="bg-blue-500 text-white p-2 rounded">Update Recipe</button>

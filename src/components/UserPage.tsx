@@ -2,7 +2,7 @@ import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useFetchFavoriteRecipesQuery, useFetchUserCreatedRecipesQuery } from '@/features/services/appwriteApi';
 import { useFetchUserQuery } from '@/features/auth/authApi';
-import RecipeCard from '@/components/RecipeCard';
+import RecipeCardWithActions from '@/components/RecipeCardWithActions';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { SerializedError } from '@reduxjs/toolkit';
 
@@ -17,6 +17,7 @@ const UserPage: React.FC = () => {
 
     // Fetch created recipes
     const { data: createdRecipes, error: createdError, isLoading: createdLoading } = useFetchUserCreatedRecipesQuery(userId || '');
+    //console.log(createdRecipes)
 
     // Loading states
     if (userLoading || favoriteLoading || createdLoading) {
@@ -31,15 +32,12 @@ const UserPage: React.FC = () => {
     type AppError = FetchBaseQueryError | SerializedError | { status?: string; data?: ErrorWithMessage };
     
     const extractErrorMessage = (error: AppError): string => {
-        // Check if the error has a 'status' property
         if ('status' in error && error.status) {
             return `Error: ${error.status}`;
         }
-        // Check if the error has a 'data' property and 'message' within 'data'
         if ('data' in error && error.data) {
             return `Error: ${error.data}`;
         }
-        // Default message for unknown errors
         return 'An unknown error occurred';
     };
 
@@ -53,7 +51,6 @@ const UserPage: React.FC = () => {
         return <div className="text-red-500">Error loading created recipes: {extractErrorMessage(createdError)}</div>;
     }
 
-    // Display if userId is not available
     if (!userId) {
         return <div className="text-red-500">User ID is missing</div>;
     }
@@ -76,7 +73,7 @@ const UserPage: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     {favoriteRecipes?.length ? (
                         favoriteRecipes.map(recipe => (
-                            <RecipeCard key={recipe.id} recipe={recipe} />
+                            <RecipeCardWithActions key={recipe.id} recipe={recipe} />
                         ))
                     ) : (
                         <div className="text-gray-500">No favorite recipes found</div>
@@ -89,10 +86,7 @@ const UserPage: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     {createdRecipes?.length ? (
                         createdRecipes.map(recipe => (
-                            <div key={recipe.id}>
-                                <RecipeCard recipe={recipe} />
-                                <Link to={`/recipe/${recipe.id}/update`} className="bg-yellow-500 text-white p-2 rounded mt-2 block">Update Recipe</Link>
-                            </div>
+                            <RecipeCardWithActions key={recipe.id} recipe={recipe} />
                         ))
                     ) : (
                         <div className="text-gray-500">No recipes created yet</div>

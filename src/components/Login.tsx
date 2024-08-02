@@ -20,6 +20,7 @@ const Login = () => {
         try {
             const result = await login({ email, password }).unwrap();
             localStorage.setItem('session', JSON.stringify(result));
+            navigate('/')
             window.location.reload(); // Refresh the page after successful login
         } catch (error) {
             console.error('Failed to login:', error);

@@ -41,6 +41,8 @@ const CreateRecipe: React.FC = () => {
                 date: formatDate(new Date()),
                 time,
             }).unwrap();
+            alert('Recipe created')
+            window.location.reload()
             navigate('/'); // Redirect to home or other relevant page
         } catch (error) {
             console.error('Failed to create recipe:', error);
@@ -60,7 +62,7 @@ const CreateRecipe: React.FC = () => {
                 <input type="text" placeholder="Category" className="p-2 border rounded w-full" value={category} onChange={(e) => setCategory(e.target.value)} />
                 <input type="text" placeholder="Area" className="p-2 border rounded w-full" value={area} onChange={(e) => setArea(e.target.value)} />
                 <input type="text" placeholder="YouTube Link" className="p-2 border rounded w-full" value={youtube} onChange={(e) => setYoutube(e.target.value)} />
-                <input type="text" placeholder="Cooking Time" className="p-2 border rounded w-full" value={`${time} mins`} onChange={(e) => setTime(e.target.value)} />
+                <input type="text" placeholder="Cooking Time eg 30 mins" className="p-2 border rounded w-full" value={time} onChange={(e) => setTime(e.target.value)} />
                 <button type="submit" className="bg-blue-500 text-white p-2 rounded">Create Recipe</button>
             </form>
         </div>

@@ -1,4 +1,5 @@
-import RecipeCard from "./RecipeCard";
+//import RecipeCard from "./RecipeCard";
+import RecipeCardWithActions from "./RecipeCardWithActions";
 import { Recipe } from "@/types";
 import { useFetchRecipesQuery  } from "@/features/services/appwriteApi";
 import { useFetchRecipesQuery as useMealDbRecipesQuery } from "@/features/services/mealDbApi";
@@ -52,9 +53,9 @@ const ContentRecipeList = () => {
 
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-24 mb-10">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-24 mb-10">
       {first12Recipes.map((recipe) => (
-        <RecipeCard key={recipe.id} recipe={recipe} />
+        <RecipeCardWithActions key={recipe.id} recipe={recipe} />
       ))}
     </div>
   );

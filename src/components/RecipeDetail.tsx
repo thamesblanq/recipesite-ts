@@ -2,15 +2,28 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useFetchRecipesQuery as useMealDbRecipesQuery } from '@/features/services/mealDbApi';
 import { useFetchRecipesQuery } from '@/features/services/appwriteApi';
+import { useFetchUserQuery } from '@/features/auth/authApi';
 import { Clock3, Utensils, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 import NutritionalData from './NutritionalData';
 import { Recipe } from '@/types';
 
 const RecipeDetail = () => {
+  const { data: user } = useFetchUserQuery();
   const { id } = useParams<{ id: string }>();
   const { data: mealDbRecipes, error: mealDbError, isLoading: isMealDbLoading } = useMealDbRecipesQuery();
   const { data: appwriteRecipes, error: appwriteError, isLoading: isAppwriteLoading } = useFetchRecipesQuery();
+
+  const userId = user?.$id
+
+  const handleShareRecipe = (recipeId: string) => {
+    const recipeUrl = `${window.location.origin}/recipe/${recipeId}`;
+    navigator.clipboard.writeText(recipeUrl).then(() => {
+      alert('Recipe link copied to clipboard! You can now share it.');
+    }).catch((error) => {
+      console.error('Error copying text: ', error);
+    });
+  };
 
   const hasAppwriteRecipes = Array.isArray(appwriteRecipes) && appwriteRecipes.length > 0 && appwriteError === undefined;
 
@@ -19,6 +32,8 @@ const RecipeDetail = () => {
     : mealDbRecipes || [];
 
   const recipe = combinedRecipes.find((item) => item.id === id);
+  const foundUser = combinedRecipes.find((item) => item.userId === userId)
+  const email = foundUser ? user?.email : "John Doe"
 
   const navigate = useNavigate();
   //const date = `${new Date().getDate()} / ${new Date().getMonth() + 1} / ${new Date().getFullYear()}`;
@@ -78,7 +93,7 @@ const RecipeDetail = () => {
             <div className="flex flex-col items-center">
               <img src={recipe.imageUrl} alt={recipe.title} className="w-12 h-12 object-cover rounded-full border border-slate-950" />
               <div className="text-center mt-2">
-                <h2 className="text-xs font-bold">arthur cheng</h2>
+                <h2 className="text-xs font-bold">{email}</h2>
                 <h2 className="text-xs">{recipe.date}</h2>
               </div>
             </div>
@@ -142,13 +157,22 @@ const RecipeDetail = () => {
             </ul>
             <h3 className="text-xl font-semibold mb-2 mt-4">Directions for cooking:</h3>
             <p className="text-gray-700 mb-4">{recipe.instructions}</p>
-            <button
-              onClick={() => navigate('/recipe')}
-              className="flex flex-row items-center justify-center gap-x-4 w-full bg-black text-white text-center py-2 rounded-lg hover:bg-black/95 transition duration-300"
-            >
-              Back to Recipe List
-              <ArrowRight />
-            </button>
+            <div className='flex flex-col md:flex-row md:justify-between gap-x-4 md:items-center gap-y-4'>
+              <button
+                onClick={() => handleShareRecipe(recipe.id)}
+                className="flex flex-row items-center justify-center gap-x-4 w-full bg-black text-white text-center py-2 rounded-lg hover:bg-black/95 transition duration-300"
+              >
+                Share Recipe
+                <ArrowRight />
+              </button>
+              <button
+                onClick={() => navigate('/recipe')}
+                className="flex flex-row items-center justify-center gap-x-4 w-full bg-black text-white text-center py-2 rounded-lg hover:bg-black/95 transition duration-300"
+              >
+                Back to Recipe List
+                <ArrowRight />
+              </button>
+            </div>
           </div>
         </div>
       </div>

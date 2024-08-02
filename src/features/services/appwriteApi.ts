@@ -4,8 +4,8 @@ import { Recipe, CustomErrorForAppwrite, AppwriteDocument, UserFavorite } from '
 import { Query } from 'appwrite';
 
 const databaseId = '66a8015a00304cd2a18a';
-const collectionId = '66a801bd0027adf1756d';
-const userFavoritesCollectionId = '66a96db00024359778ac'; // Replace with your actual User Favorites Collection ID
+const collectionId = '66a801bd0027adf1756d';//recipe collection
+const userFavoritesCollectionId = '66a96db00024359778ac'; // favorite recipe collection
 
 const mapDocumentToRecipe = (doc: AppwriteDocument): Recipe => {
     return {
@@ -44,8 +44,6 @@ const getUserIdFromLocalStorage = (): string | null => {
     }
     return null;
 };
-
-
 
 export const appwriteApi = createApi({
     reducerPath: 'appwriteApi',
@@ -86,9 +84,13 @@ export const appwriteApi = createApi({
         removeRecipe: builder.mutation<string, string>({
             queryFn: async (recipeId) => {
                 try {
+                    if (!recipeId) {
+                        throw new Error('Recipe ID is required');
+                    }
                     await databases.deleteDocument(databaseId, collectionId, recipeId);
                     return { data: recipeId };
                 } catch (error) {
+                    console.error('Error deleting recipe:', error);
                     return { error: { status: 'CUSTOM_ERROR', error: (error as CustomErrorForAppwrite).error } };
                 }
             },
@@ -103,7 +105,19 @@ export const appwriteApi = createApi({
                 }
             },
         }),
-
+        // New endpoint for fetching a recipe by its ID
+        fetchRecipeById: builder.query<Recipe, string>({
+            queryFn: async (id) => {
+                try {
+                    const response = await databases.getDocument(databaseId, collectionId, id);
+                    const recipe = mapDocumentToRecipe(response as AppwriteDocument);
+                    return { data: recipe };
+                } catch (error) {
+                    console.error('Error fetching recipe by ID:', error);
+                    return { error: { status: 'CUSTOM_ERROR', error: (error as CustomErrorForAppwrite).error } };
+                }
+            },
+        }),
         // Favorite recipes endpoints
         fetchFavoriteRecipes: builder.query<Recipe[], string>({
             queryFn: async (userId) => {
@@ -195,5 +209,6 @@ export const {
     useFetchFavoriteRecipesQuery,
     useAddFavoriteRecipeMutation,
     useRemoveFavoriteRecipeMutation,
-    useFetchUserCreatedRecipesQuery 
+    useFetchUserCreatedRecipesQuery,
+    useFetchRecipeByIdQuery // Export the new endpoint
 } = appwriteApi;

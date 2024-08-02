@@ -9,7 +9,7 @@ const Dropdown = ({ setShow }: { setShow: React.Dispatch<React.SetStateAction<bo
     const user = localStorage.getItem('session');
     return user ? JSON.parse(user) : null;
   });
-  console.log(userInfo?.$id)
+  //console.log(userInfo?.$id)
   const navigate = useNavigate();
   const [logout] = useLogoutMutation();
 
@@ -31,6 +31,14 @@ const Dropdown = ({ setShow }: { setShow: React.Dispatch<React.SetStateAction<bo
       setUserInfo(null);
       setShow(false);
       navigate('/');
+    }
+  };
+
+  const handleProfile = () => {
+    if (userInfo) {
+      setShow(false)
+      navigate(`/user/${userInfo.$id}`);
+      //window.location.href = `/user/${userInfo.$id}`;
     }
   };
 
@@ -64,7 +72,7 @@ const Dropdown = ({ setShow }: { setShow: React.Dispatch<React.SetStateAction<bo
             Recipe
           </Link>
         </li>
-        <li className="border-b-2 border-black w-full">
+{/*         <li className="border-b-2 border-black w-full">
           <Link
             to="/blog"
             className="block px-4 py-2 text-black w-full"
@@ -72,7 +80,7 @@ const Dropdown = ({ setShow }: { setShow: React.Dispatch<React.SetStateAction<bo
           >
             Blog
           </Link>
-        </li>
+        </li> */}
         <li className="border-b-2 border-black w-full">
           <Link
             to="/contact"
@@ -93,14 +101,10 @@ const Dropdown = ({ setShow }: { setShow: React.Dispatch<React.SetStateAction<bo
                 Logout
               </button>
             </li>
-            <li className="border-b-2 border-black w-full">
-              <Link
-                to={`/user/${userInfo.$id}`}
-                className="block px-4 py-2 text-black w-full"
-                onClick={() => setShow(false)}
-              >
-                Profile
-              </Link>
+            <li className="border-b-2 border-black w-full cursor-pointer"
+            onClick={handleProfile}
+            >
+                <span  className="w-max block px-4 py-2 text-black">Profile</span>
             </li>
           </>
         ) : (

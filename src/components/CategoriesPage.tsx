@@ -1,7 +1,8 @@
 import { useParams } from 'react-router-dom';
 import { useFetchRecipesQuery as useMealDbRecipesQuery } from '@/features/services/mealDbApi';
 import { useFetchRecipesQuery } from '@/features/services/appwriteApi';
-import RecipeCard from './RecipeCard';
+//import RecipeCard from './RecipeCard';
+import RecipeCardWithActions from './RecipeCardWithActions';
 import { Recipe } from '@/types';
 
 const CategoryPage = () => {
@@ -54,7 +55,7 @@ const CategoryPage = () => {
     <>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-24 p-4">
       {combinedRecipes.map((recipe) => (
-        <RecipeCard key={recipe.id} recipe={recipe} />
+        <RecipeCardWithActions key={recipe.id} recipe={recipe} />
       ))}
     </div>
     </>
