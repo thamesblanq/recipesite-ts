@@ -48,7 +48,7 @@ const ContentRecipeList = () => {
     }
 
     // If there is an error with Appwrite, display only MealDB recipes
-    return <p>Error fetching recipes: {errorMessage}</p>;
+    return <p>Error fetching recipes in contentrecipelist: {errorMessage}</p>;
 }
 
 

@@ -42,7 +42,7 @@ const CategoryPage = () => {
         }
       }
   
-      return <p className='text-white'>Error fetching recipes: {errorMessage}</p>;
+      return <p className='text-white'>Error fetching recipes in categorypage: {errorMessage}</p>;
     }
   
   

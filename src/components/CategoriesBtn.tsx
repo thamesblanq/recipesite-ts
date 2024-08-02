@@ -49,7 +49,7 @@ const CategoryButtons: React.FC = () => {
       }
     }
 
-    return <p className='text-white'>Error fetching recipes: {errorMessage}</p>;
+    return <p className='text-white'>Error fetching recipes in categorybtn: {errorMessage}</p>;
   }
 
 

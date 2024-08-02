@@ -4,38 +4,34 @@ import { Recipe, CustomErrorForAppwrite, AppwriteDocument, UserFavorite } from '
 import { Query } from 'appwrite';
 
 const databaseId = '66a8015a00304cd2a18a';
-const collectionId = '66a801bd0027adf1756d';//recipe collection
+const collectionId = '66a801bd0027adf1756d'; // recipe collection
 const userFavoritesCollectionId = '66a96db00024359778ac'; // favorite recipe collection
 
-const mapDocumentToRecipe = (doc: AppwriteDocument): Recipe => {
-    return {
-        id: doc.$id,
-        userId: doc.userId || '', // Map userId from document
-        title: doc.title || '',
-        description: doc.description || '',
-        ingredients: doc.ingredients || [],
-        instructions: doc.instructions || '',
-        imageUrl: doc.imageUrl || '',
-        category: doc.category || '',
-        area: doc.area || '', // Provide fallback for optional fields
-        youtube: doc.youtube || '',
-        time: doc.time || '',
-    };
-};
+const mapDocumentToRecipe = (doc: AppwriteDocument): Recipe => ({
+    id: doc.$id,
+    userId: doc.userId || '', // Map userId from document
+    title: doc.title || '',
+    description: doc.description || '',
+    ingredients: doc.ingredients || [],
+    instructions: doc.instructions || '',
+    imageUrl: doc.imageUrl || '',
+    category: doc.category || '',
+    area: doc.area || '', // Provide fallback for optional fields
+    youtube: doc.youtube || '',
+    time: doc.time || '',
+});
 
-const mapDocumentToUserFavorite = (doc: AppwriteDocument): UserFavorite => {
-    return {
-        userId: doc.userId || '', // Ensure fallback to empty string if userId is undefined
-        recipeId: doc.$id || '', // Ensure fallback to empty string if recipeId is undefined
-    };
-};
+const mapDocumentToUserFavorite = (doc: AppwriteDocument): UserFavorite => ({
+    userId: doc.userId || '', // Ensure fallback to empty string if userId is undefined
+    recipeId: doc.$id || '', // Ensure fallback to empty string if recipeId is undefined
+});
 
 const getUserIdFromLocalStorage = (): string | null => {
     const user = localStorage.getItem('session');
     if (user) {
         try {
             const parsedUser = JSON.parse(user);
-            console.log(parsedUser.$id)
+            console.log(parsedUser.$id);
             return parsedUser.$id || null; // Adjust based on your user object structure
         } catch (e) {
             console.error('Error parsing user from localStorage:', e);
@@ -70,10 +66,10 @@ export const appwriteApi = createApi({
                     if (!userId) {
                         return { error: { status: 'CUSTOM_ERROR', error: 'User ID not found' } };
                     }
-                    
+
                     // Add userId to recipe
                     const recipeWithUserId = { ...recipe, userId };
-                    
+
                     const response = await databases.createDocument(databaseId, collectionId, recipeWithUserId.id, recipeWithUserId);
                     return { data: mapDocumentToRecipe(response) };
                 } catch (error) {
@@ -130,13 +126,13 @@ export const appwriteApi = createApi({
                     const userFavorites = documents
                         .map(mapDocumentToUserFavorite)
                         .filter(favorite => favorite.userId === userId);
-                    
+
                     // Fetch the recipes based on userFavorites
                     const recipeIds = userFavorites.map(favorite => favorite.recipeId);
                     const recipesPromises = recipeIds.map(recipeId => databases.getDocument(databaseId, collectionId, recipeId));
                     const recipesResponses = await Promise.all(recipesPromises);
                     const recipes = recipesResponses.map(response => mapDocumentToRecipe(response as AppwriteDocument));
-                    
+
                     return { data: recipes };
                 } catch (error) {
                     console.error('Error fetching favorite recipes:', error);
