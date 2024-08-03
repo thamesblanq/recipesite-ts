@@ -1,11 +1,14 @@
 services:
   - type: web
-    name: recipe-site
-    env: static
-    staticPublishPath: dist
+    name: recipesite
+    env: node
     buildCommand: npm install && npm run build
-    startCommand: npm run preview
+    startCommand: npm run start
+    staticPublishPath: /path/to/static/files
     routes:
-      - type: rewrite
-        source: '.*'
-        destination: /index.html
+      - type: static
+        url: '/'
+        path: /path/to/static/files
+      - type: dynamic
+        url: '*'
+        path: /index.html
