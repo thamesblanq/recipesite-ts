@@ -91,7 +91,7 @@ const RecipeDetail = () => {
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">{recipe.title}</h2>
           <div className="flex flex-row justify-between items-center gap-x-4 my-2 lg:w-3/5">
             <div className="flex flex-col items-center">
-              <img src={recipe.imageUrl} alt={recipe.title} className="w-12 h-12 object-cover rounded-full border border-slate-950" />
+              <img src={recipe.imageUrl} loading='lazy' alt={recipe.title} className="w-12 h-12 object-cover rounded-full border border-slate-950" />
               <div className="text-center mt-2">
                 <h2 className="text-xs font-bold">{email}</h2>
                 <h2 className="text-xs">{recipe.date}</h2>
@@ -125,6 +125,7 @@ const RecipeDetail = () => {
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
                 title="YouTube video player"
+                loading='lazy'
                 className="w-full lg:w-2/3 rounded-xl"
               ></iframe>
             ) : (

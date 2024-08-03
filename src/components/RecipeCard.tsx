@@ -11,7 +11,7 @@ const RecipeCard = ({ recipe }: RecipeCardProps) => {
     const content = (
         <>
             <div className="rounded-lg shadow-md overflow-hidden bg-[#E7F9FD] p-2">
-            <img src={recipe.imageUrl} alt={recipe.title} className="w-full h-48 object-cover"/>
+            <img src={recipe.imageUrl} alt={recipe.title} loading="lazy" className="w-full h-48 object-cover"/>
             <div className="p-4">
                 <h2 className="text-2xl font-bold mb-2">{recipe.title}</h2>
                 <p className="text-gray-700 mb-4">{recipe.category}</p>
