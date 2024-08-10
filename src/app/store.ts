@@ -4,10 +4,10 @@ import { configureStore } from '@reduxjs/toolkit';
 import recipeSlice  from "../features/recipe/recipeSlice"
 import { mealDbApi } from '../features/services/mealDbApi';
 import { useDispatch } from 'react-redux';
-import { nutritionApi } from '@/features/services/nutritionApi';
-import { authApi } from '@/features/auth/authApi';
-import { youtubeApi } from '@/features/services/youtubeApi';
-import { mixkitApi } from '@/features/services/micKitApi';
+import { nutritionApi } from "../features/services/nutritionApi"
+import { authApi } from "../features/auth/authApi"
+import { youtubeApi } from '../features/services/youtubeApi';
+import { mixkitApi } from '../features/services/micKitApi';
 import { appwriteApi } from '@/features/services/appwriteApi';
 
 

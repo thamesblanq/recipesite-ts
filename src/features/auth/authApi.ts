@@ -22,18 +22,44 @@ export const authApi = createApi({
     register: builder.mutation<User, { email: string; password: string }>({
       queryFn: async ({ email, password }) => {
         try {
-          const userId = ID.unique(); // Generate a unique user ID
+          // Generate a unique userId using Appwrite's ID helper
+          const userId = ID.unique(); 
+    
+          // Attempt to create the user with the generated userId, email, and password
           await account.create(userId, email, password);
-          await account.createSession(email, password);
-          const user = await account.get(); // Ensure type assertion if necessary
+    
+          // Create a session immediately after registration
+          await account.createEmailPasswordSession(email, password);
+    
+          // Fetch the user's details after successful registration
+          const user = await account.get();
           localStorage.setItem('user', JSON.stringify(user));
-          return { data: user as User }; // Type assertion
+    
+          // Return the user data
+          return { data: user as User };
+    
         } catch (error) {
+          // Handle the case where the user already exists (Appwrite will throw a conflict error)
+          if (error && typeof error === 'object' && 'status' in error) {
+            const fetchError = error as FetchBaseQueryError;
+    
+            if (fetchError.status === 409) {
+              return {
+                error: {
+                  status: 409,
+                  data: 'User with this email already exists. Please login instead.',
+                } as FetchBaseQueryError,
+              };
+            }
+          }
+    
+          // Handle other types of errors
           const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
           return { error: { status: 500, data: errorMessage } as FetchBaseQueryError };
         }
       },
     }),
+        
     fetchUser: builder.query<User, void>({
       queryFn: async () => {
         try {

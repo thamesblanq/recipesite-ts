@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useRegisterMutation } from "@/features/auth/authApi";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { Link, useNavigate } from "react-router-dom";
-//import { ID } from "appwrite";
 
 const Signup = () => {
     const [email, setEmail] = useState('');
@@ -10,15 +9,13 @@ const Signup = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [register, { isLoading, isError, error }] = useRegisterMutation();
     const navigate = useNavigate();
-    //const userId = ID.unique();
 
     useEffect(() => {
-        // Check if a session already exist
         const session = localStorage.getItem('user');
         if (session) {
-                console.warn('Session already active');
-                navigate('/');
-                return;
+            console.warn('Session already active');
+            navigate('/');
+            return;
         }
     }, [navigate]);
 
@@ -29,25 +26,17 @@ const Signup = () => {
         }
 
         try {
-            // Check if a session already exists
-            const session = localStorage.getItem('user');
-            if (session) {
-                console.warn('Session already active');
-                navigate('/');
-                return;
-            }
-
             const result = await register({ email, password }).unwrap();
-            // Store session information in localStorage or a state management store
             localStorage.setItem('session', JSON.stringify(result));
+            window.location.reload();
             navigate('/');
         } catch (err) {
-            // Handle error type safely
             if (err && typeof err === 'object' && 'status' in err && 'data' in err) {
                 const fetchError = err as FetchBaseQueryError;
-                if (fetchError.status === 'CUSTOM_ERROR') {
-                    console.error('Signup error:', fetchError.data);
-                    alert(fetchError.data);
+                
+                if (fetchError.status === 409) { // Appwrite returns 409 for conflict (i.e., user already exists)
+                    alert('A user with this email already exists. Please log in.');
+                    navigate('/login');
                 } else {
                     console.error('Failed to signup:', fetchError);
                     alert('An unknown error occurred');
@@ -87,7 +76,7 @@ const Signup = () => {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Password"
+                    placeholder="Password: eight characters and above"
                     className="px-4 py-2 border border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <input

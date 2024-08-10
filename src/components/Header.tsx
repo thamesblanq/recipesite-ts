@@ -2,7 +2,7 @@ import { AlignLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
 import Dropdown from "./Dropdown";
-import { Button } from "@/components/ui/button";
+import { Button } from "./ui/button";
 import { useLogoutMutation } from "@/features/auth/authApi";
 import { User } from "@/types";
 

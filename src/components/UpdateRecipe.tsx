@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useFetchRecipeByIdQuery, useUpdateRecipeMutation } from '@/features/services/appwriteApi';
+import { useFetchRecipeByIdQuery, useUpdateRecipeMutation } from "../features/services/appwriteApi"
 
 const UpdateRecipe: React.FC = () => {
     const { id: recipeId } = useParams<{ id: string }>();

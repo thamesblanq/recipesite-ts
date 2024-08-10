@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useFetchUserQuery } from '@/features/auth/authApi';
+import { useFetchUserQuery } from "../features/auth/authApi"
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { data: user, error } = useFetchUserQuery();
