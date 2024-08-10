@@ -4,26 +4,26 @@ import { Recipe, CustomErrorForAppwrite, AppwriteDocument, UserFavorite } from '
 import { Query } from 'appwrite';
 
 const databaseId = '66a8015a00304cd2a18a';
-const collectionId = '66a801bd0027adf1756d'; // recipe collection
-const userFavoritesCollectionId = '66a96db00024359778ac'; // favorite recipe collection
+const collectionId = '66a801bd0027adf1756d'; 
+const userFavoritesCollectionId = '66a96db00024359778ac'; 
 
 const mapDocumentToRecipe = (doc: AppwriteDocument): Recipe => ({
     id: doc.$id,
-    userId: doc.userId || '', // Map userId from document
+    userId: doc.userId || '', 
     title: doc.title || '',
     description: doc.description || '',
     ingredients: doc.ingredients || [],
     instructions: doc.instructions || '',
     imageUrl: doc.imageUrl || '',
     category: doc.category || '',
-    area: doc.area || '', // Provide fallback for optional fields
+    area: doc.area || '', 
     youtube: doc.youtube || '',
     time: doc.time || '',
 });
 
 const mapDocumentToUserFavorite = (doc: AppwriteDocument): UserFavorite => ({
-    userId: doc.userId || '', // Ensure fallback to empty string if userId is undefined
-    recipeId: doc.$id || '', // Ensure fallback to empty string if recipeId is undefined
+    userId: doc.userId || '',
+    recipeId: doc.$id || '', 
 });
 
 const getUserIdFromLocalStorage = (): string | null => {
@@ -32,7 +32,7 @@ const getUserIdFromLocalStorage = (): string | null => {
         try {
             const parsedUser = JSON.parse(user);
             console.log(parsedUser.$id);
-            return parsedUser.$id || null; // Adjust based on your user object structure
+            return parsedUser.$id || null; 
         } catch (e) {
             console.error('Error parsing user from localStorage:', e);
             return null;
@@ -101,7 +101,7 @@ export const appwriteApi = createApi({
                 }
             },
         }),
-        // New endpoint for fetching a recipe by its ID
+        //fetch recipe by ID
         fetchRecipeById: builder.query<Recipe, string>({
             queryFn: async (id) => {
                 try {
@@ -206,5 +206,5 @@ export const {
     useAddFavoriteRecipeMutation,
     useRemoveFavoriteRecipeMutation,
     useFetchUserCreatedRecipesQuery,
-    useFetchRecipeByIdQuery // Export the new endpoint
+    useFetchRecipeByIdQuery 
 } = appwriteApi;
