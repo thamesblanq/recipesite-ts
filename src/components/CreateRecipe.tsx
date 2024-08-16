@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useAddRecipeMutation } from '@/features/services/appwriteApi';
 import { useNavigate } from 'react-router-dom';
 import { ID } from 'appwrite';
+//import joinus from "../images/joinus.png"
 
 const CreateRecipe: React.FC = () => {
     const [title, setTitle] = useState('');
@@ -34,7 +35,7 @@ const CreateRecipe: React.FC = () => {
                 description,
                 ingredients,
                 instructions,
-                imageUrl,
+                imageUrl: imageUrl ? "https://www.pexels.com/photo/13654417/" : "https://www.pexels.com/photo/13654417/",//work on this
                 category,
                 area,
                 youtube,
@@ -58,7 +59,7 @@ const CreateRecipe: React.FC = () => {
                 <textarea placeholder="Description" className="p-2 border rounded w-full" value={description} onChange={(e) => setDescription(e.target.value)} />
                 <input type="text" placeholder="Ingredients (comma-separated)" className="p-2 border rounded w-full" value={ingredients.join(', ')} onChange={(e) => setIngredients(e.target.value.split(','))} />
                 <textarea placeholder="Instructions" className="p-2 border rounded w-full" value={instructions} onChange={(e) => setInstructions(e.target.value)} />
-                <input type="text" placeholder="Image URL" className="p-2 border rounded w-full" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
+                <input type="text" placeholder="Image URL, if you don't have one don't worry" className="p-2 border rounded w-full" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
                 <input type="text" placeholder="Category" className="p-2 border rounded w-full" value={category} onChange={(e) => setCategory(e.target.value)} />
                 <input type="text" placeholder="Area" className="p-2 border rounded w-full" value={area} onChange={(e) => setArea(e.target.value)} />
                 <input type="text" placeholder="YouTube Link" className="p-2 border rounded w-full" value={youtube} onChange={(e) => setYoutube(e.target.value)} />

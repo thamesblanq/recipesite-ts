@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { databases } from '@/lib/appwrite';
-import { Recipe, CustomErrorForAppwrite, AppwriteDocument, UserFavorite } from '@/types';
-import { Query } from 'appwrite';
+import { Recipe, CustomErrorForAppwrite, AppwriteDocument, } from '@/types';
+import { Query, ID } from 'appwrite';
 
 const databaseId = '66a8015a00304cd2a18a';
 const collectionId = '66a801bd0027adf1756d'; 
@@ -9,22 +9,24 @@ const userFavoritesCollectionId = '66a96db00024359778ac';
 
 const mapDocumentToRecipe = (doc: AppwriteDocument): Recipe => ({
     id: doc.$id,
-    userId: doc.userId || '', 
+    userId: doc.userId || '',
+    date: doc.date || '',
     title: doc.title || '',
     description: doc.description || '',
     ingredients: doc.ingredients || [],
     instructions: doc.instructions || '',
     imageUrl: doc.imageUrl || '',
     category: doc.category || '',
-    area: doc.area || '', 
+    area: doc.area || '',
     youtube: doc.youtube || '',
     time: doc.time || '',
-});
+  });
+  
 
-const mapDocumentToUserFavorite = (doc: AppwriteDocument): UserFavorite => ({
+/* const mapDocumentToUserFavorite = (doc: AppwriteDocument): UserFavorite => ({
     userId: doc.userId || '',
     recipeId: doc.$id || '', 
-});
+}); */
 
 const getUserIdFromLocalStorage = (): string | null => {
     const user = localStorage.getItem('session');
@@ -116,65 +118,91 @@ export const appwriteApi = createApi({
         }),
         // Favorite recipes endpoints
         fetchFavoriteRecipes: builder.query<Recipe[], string>({
-            queryFn: async (userId) => {
-                if (!userId) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'User ID is required' } };
+            async queryFn(userId) {
+              if (!userId) {
+                return { error: { status: 'CUSTOM_ERROR', error: 'User ID is required' } };
+              }
+          
+              try {
+                const response = await databases.listDocuments(databaseId, userFavoritesCollectionId);
+                const documents = response.documents as AppwriteDocument[];
+                console.log(documents)//gotten
+          
+                // Filter by user ID
+                const userFavorites = documents.filter(fav => fav.userId === userId);
+                console.log(userFavorites);
+/*                 if (userFavorites) {
+                    console.log(`userFavorite: ${userFavorites}`)
+                } else {
+                    console.log(`Error getting usefavorite`)
                 }
-                try {
-                    const response = await databases.listDocuments(databaseId, userFavoritesCollectionId);
-                    const documents = response.documents as unknown as AppwriteDocument[];
-                    const userFavorites = documents
-                        .map(mapDocumentToUserFavorite)
-                        .filter(favorite => favorite.userId === userId);
-
-                    // Fetch the recipes based on userFavorites
-                    const recipeIds = userFavorites.map(favorite => favorite.recipeId);
-                    const recipesPromises = recipeIds.map(recipeId => databases.getDocument(databaseId, collectionId, recipeId));
-                    const recipesResponses = await Promise.all(recipesPromises);
-                    const recipes = recipesResponses.map(response => mapDocumentToRecipe(response as AppwriteDocument));
-
-                    return { data: recipes };
-                } catch (error) {
-                    console.error('Error fetching favorite recipes:', error);
-                    return { error: { status: 'CUSTOM_ERROR', error: (error as CustomErrorForAppwrite).error } };
-                }
+           */
+                // Fetch the recipes based on favorite recipe IDs
+                //const recipeIds = userFavorites.map(fav => fav.$id);
+/*                 const recipesPromises = recipeIds.map(recipeId =>
+                  databases.getDocument(databaseId, collectionId, recipeId)
+                ); */
+                //const recipesResponses = await Promise.all(recipesPromises);
+          
+                //const recipes = recipesResponses.map(response => mapDocumentToRecipe(response as AppwriteDocument));
+                const recipes = userFavorites.map(response => mapDocumentToRecipe(response as AppwriteDocument));
+                
+                return { data: recipes };
+              } catch (error) {
+                console.error('Error fetching favorite recipes:', error);
+                return { error: { status: 'CUSTOM_ERROR', error: (error as CustomErrorForAppwrite).error } };
+              }
             },
-        }),
-        addFavoriteRecipe: builder.mutation<void, { userId: string; recipeId: string }>({
-            queryFn: async ({ userId, recipeId }) => {
-                if (!userId || !recipeId) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'User ID and Recipe ID are required' } };
-                }
+          }),
+          
+        addFavoriteRecipe: builder.mutation<void, { userId: string; recipe: Recipe }>({
+            queryFn: async ({ userId, recipe }) => {
                 try {
-                    await databases.createDocument(databaseId, userFavoritesCollectionId, '', { userId, recipeId });
-                    return { data: undefined };
+                    if (!userId) {
+                        return { error: { status: 'CUSTOM_ERROR', error: 'User is not authorized to perform this action' } };
+                    }
+                    if (!recipe || !recipe.id) {
+                        return { error: { status: 'CUSTOM_ERROR', error: 'Recipe data is missing' } };
+                    }
+        
+                    const documentData = { userId, ...recipe };
+                    console.log("Document Data:", documentData);
+            
+                    await databases.createDocument(databaseId, userFavoritesCollectionId, ID.unique(), documentData);
+                    return { data: undefined }
                 } catch (error) {
+                    console.error(error);  // Log the error message
                     return { error: { status: 'CUSTOM_ERROR', error: (error as CustomErrorForAppwrite).error } };
                 }
             },
         }),
         removeFavoriteRecipe: builder.mutation<void, { userId: string; recipeId: string }>({
             queryFn: async ({ userId, recipeId }) => {
-                if (!userId || !recipeId) {
-                    return { error: { status: 'CUSTOM_ERROR', error: 'User ID and Recipe ID are required' } };
-                }
-                try {
-                    const response = await databases.listDocuments(databaseId, userFavoritesCollectionId, [
-                        Query.equal('userId', userId),
-                        Query.equal('recipeId', recipeId)
-                    ]);
-                    const documentId = response.documents[0]?.$id;
-                    if (documentId) {
-                        await databases.deleteDocument(databaseId, userFavoritesCollectionId, documentId);
-                        return { data: undefined };
-                    }
-                    return { error: { status: 'CUSTOM_ERROR', error: 'Favorite not found' } };
-                } catch (error) {
-                    return { error: { status: 'CUSTOM_ERROR', error: (error as CustomErrorForAppwrite).error } };
-                }
+              // Ensure userId and recipeId are provided
+              if (!userId || !recipeId) {
+                return {
+                  error: { status: 400, data: 'User ID and Recipe ID are required' },
+                };
+              }
+          
+              try {
+                // Perform the document deletion using Appwrite SDK
+                await databases.deleteDocument(databaseId, userFavoritesCollectionId, recipeId);
+          
+                // Return success with `data: undefined`
+                return { data: undefined };
+              } catch (error) {
+                // Return an error response
+                return {
+                  error: {
+                    status: 500,
+                    data: (error as CustomErrorForAppwrite).error || 'Something went wrong',
+                  },
+                };
+              }
             },
-        }),
-
+          }),
+          
         // Fetch recipes created by a user
         fetchUserCreatedRecipes: builder.query<Recipe[], string>({
             queryFn: async (userId) => {

@@ -44,25 +44,10 @@ export interface CustomError {
     error: Error;
 }
 
-export interface Recipe {
-  id: string;
-  userId?: string
-  date?: string
-  title: string;
-  description: string;
-  ingredients: string[];
-  instructions: string;
-  imageUrl: string;
-  category: string;
-  area?: string; // Optional, as it might not be in every document
-  youtube?: string; // Optional
-  time?: string; // Optional
-}
-
 export interface AppwriteDocument {
   $id: string;
-  userId?: string
-  date?: string
+  userId?: string;
+  date?: string;
   $createdAt: string;
   $updatedAt: string;
   title?: string;
@@ -76,6 +61,26 @@ export interface AppwriteDocument {
   time?: string;
 }
 
+export interface Recipe {
+  id: string;
+  userId?: string;
+  date?: string;
+  title: string;
+  description: string;
+  ingredients: string[];
+  instructions: string;
+  imageUrl: string;
+  category: string;
+  area?: string;
+  youtube?: string;
+  time?: string;
+}
+
+
+export type UserFavoriteRecipe = {
+  userId: string,
+  recipeId: string
+}
 
 
 export interface YouTubeVideo {

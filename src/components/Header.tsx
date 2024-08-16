@@ -78,9 +78,6 @@ const Header = () => {
               <Button asChild>
                 <Link to="/login">Login</Link>
               </Button>
-              <Button asChild>
-                <Link to="/signup">Sign Up</Link>
-              </Button>
             </>
           )}
         </div>
